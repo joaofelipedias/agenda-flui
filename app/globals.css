@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+/*
+ * Agenda Flui — tokens da marca.
+ * Fonte: brand/design-tokens/agenda-flui-tokens.json + prompt da landing.
+ * Cada token vira uma CSS custom property (ex.: var(--color-brand))
+ * e uma classe do Tailwind (ex.: bg-brand, text-ink, rounded-card).
+ */
+@theme {
+  /* Cores — tema claro */
+  --color-brand: #0b6e66; /* Água */
+  --color-brand-strong: #08534d;
+  --color-brand-tint: #d7efeb; /* Bolha */
+  --color-on-brand: #ffffff;
+  --color-caramelo: #f2a93b; /* nunca como cor de texto */
+  --color-caramelo-tint: #fcebd0; /* Mel */
+  --color-ground: #f3f8f6; /* Espuma */
+  --color-surface: #ffffff;
+  --color-ink: #0f2a27; /* Tinta */
+  --color-ink-muted: #4a615d;
+  --color-line: #d3e2de;
+  --color-success: #1e8a4c;
+  --color-danger: #c8412f;
+
+  /* Cores — seção escura (fundo ink) */
+  --color-night-text: #e8f2ef;
+  --color-night-muted: #9db3ae;
+  --color-night-card: #13241f;
+  --color-night-line: #24403a;
+  --color-night-deep: #0c1a18;
+  --color-brand-light: #3cc4b4;
+  --color-on-brand-light: #062421;
+  --color-caramelo-light: #f5b85a;
+
+  /* Fontes (variáveis criadas pelo next/font em app/layout.tsx) */
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", var(--font-figtree), system-ui, sans-serif;
+  --font-sans: var(--font-figtree), Figtree, system-ui, sans-serif;
+
+  /* Escala de texto */
+  --text-display: clamp(2.625rem, 1.6rem + 3.4vw, 4.25rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.035em;
+  --text-h1: clamp(2.25rem, 1.7rem + 1.8vw, 2.75rem);
+  --text-h1--line-height: 1.05;
+  --text-h1--letter-spacing: -0.03em;
+  --text-h2: clamp(2rem, 1.5rem + 1.4vw, 2.75rem);
+  --text-h2--line-height: 1.06;
+  --text-h2--letter-spacing: -0.028em;
+  --text-h3: clamp(1.25rem, 1.15rem + 0.3vw, 1.375rem);
+  --text-h3--line-height: 1.25;
+  --text-h3--letter-spacing: -0.015em;
+  --text-body-lg: 1.1875rem;
+  --text-body-lg--line-height: 1.875rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5625rem;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.25rem;
+
+  /* Cantos */
+  --radius-chip: 10px; /* inputs, chips de horário */
+  --radius-card: 16px; /* cards */
+  --radius-block: 28px; /* blocos grandes, mockups */
+
+  /* Sombra — só para o que flutua */
+  --shadow-pop: 0 24px 48px -20px rgba(15, 42, 39, 0.45);
+
+  /* Animação do card do hero (única animação de destaque da página) */
+  --animate-card-in: card-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-caramelo);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-tint);
+    color: var(--color-ink);
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;
+
+  @media (width >= 40rem) {
+    padding-inline: 24px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------
+ * Movimento
+ * Curvas de saída exponenciais, sem bounce. Tudo que anima tem um
+ * estado final estático e visível por padrão; as animações só entram
+ * quando o elemento está ativo/em tela e o sistema permite movimento.
+ * ------------------------------------------------------------------ */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes type-in {
+  from {
+    max-width: 0;
+  }
+  to {
+    max-width: 100%;
+  }
+}
+
+@keyframes caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes knob-on {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(14px);
+  }
+}
+
+@keyframes track-on {
+  from {
+    background-color: var(--color-line);
+  }
+  to {
+    background-color: var(--color-brand);
+  }
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(11, 110, 102, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(11, 110, 102, 0);
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 169, 59, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(242, 169, 59, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Demos de "Como funciona": tocam só no card ativo */
+  [data-active="true"] .demo-rise {
+    animation: rise-in 560ms var(--ease-out-expo) both;
+  }
+  [data-active="true"] .demo-drop {
+    animation: drop-in 520ms var(--ease-out-expo) both;
+  }
+  [data-active="true"] .demo-pop {
+    animation: pop-in 420ms var(--ease-out-expo) both;
+  }
+  [data-active="true"] .demo-type {
+    animation: type-in 1100ms steps(28, end) both;
+  }
+  [data-active="true"] .demo-caret {
+    animation: caret 900ms steps(1, end) 4 both;
+  }
+  [data-active="true"] .demo-track {
+    animation: track-on 260ms var(--ease-out-quart) both;
+  }
+  [data-active="true"] .demo-knob {
+    animation: knob-on 260ms var(--ease-out-quart) both;
+  }
+  [data-active="true"] .demo-progress {
+    animation: progress var(--cycle, 4200ms) linear both;
+  }
+  [data-active="true"] .demo-ring {
+    animation: ring 1400ms var(--ease-out-quart) 2;
+  }
+
+  /* Elementos que entram uma vez (toasts do hero, sucesso do celular) */
+  .anim-rise {
+    animation: rise-in 600ms var(--ease-out-expo) both;
+  }
+  .anim-pop {
+    animation: pop-in 420ms var(--ease-out-expo) both;
+  }
+  .anim-draw {
+    stroke-dasharray: 1;
+    animation: draw 600ms var(--ease-out-quart) 120ms both;
+  }
+  .anim-flash {
+    animation: flash 700ms var(--ease-out-quart) both;
+  }
+}
