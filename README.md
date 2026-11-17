@@ -2,7 +2,7 @@
 
 Landing page de marketing da **Agenda Flui** (agendamento online para banho e tosa), feita para captar pet shops interessados.
 
-Stack: Next.js 15 (App Router) + TypeScript + Tailwind CSS v4 + `lucide-react` + `zod/mini` + `@vercel/analytics`. Página estática; o formulário usa uma Server Action.
+Stack: Next.js 15 (App Router, exportação estática) + TypeScript + Tailwind CSS v4 + `lucide-react` + `zod/mini`. O formulário roda no navegador e abre o WhatsApp.
 
 ---
 
@@ -12,7 +12,7 @@ Precisa do Node.js 20 ou mais novo.
 
 ```bash
 npm install
-cp .env.example .env.local   # depois preencha LEAD_WEBHOOK_URL (veja abaixo)
+cp .env.example .env.local   # opcional: NEXT_PUBLIC_LEAD_WEBHOOK_URL (veja abaixo)
 npm run dev                  # http://localhost:3000
 ```
 
@@ -20,8 +20,7 @@ Outros comandos:
 
 | Comando | O que faz |
 |---|---|
-| `npm run build` | Gera a versão de produção (rode antes de publicar para ver se está tudo certo) |
-| `npm run start` | Sobe a versão de produção gerada pelo build |
+| `npm run build` | Gera o site estático na pasta `out/` (é o que vai para a Hostinger) |
 | `npm run lint` | Confere o código com o ESLint |
 
 ---
@@ -37,11 +36,11 @@ Outros comandos:
 Outras pastas, para quem for mexer no código:
 
 ```
-app/            páginas, layout, metadados, Server Action (actions.ts), ícones e imagem Open Graph
+app/            páginas, layout, metadados, envio do formulário (actions.ts), ícones e imagem Open Graph
 components/     uma seção por arquivo (Hero, Pains, HowItWorks, ForPetShop, ForTutor, Pricing, Faq, StartCta, Footer…)
 content/        site.ts — todos os textos
-lib/            validação do formulário (lead.ts), link do WhatsApp, URL do site, hooks de movimento (motion.ts)
-public/         logos em SVG
+lib/            validação do formulário (lead.ts), links do WhatsApp, URL do site, hooks de movimento (motion.ts)
+public/         logos em SVG e .htaccess da Hostinger
 brand/          pacote da marca (manual em PDF, fontes, tokens). Fica fora do repositório (.gitignore);
                 peça aos sócios se precisar. O site não depende dele.
 ```
@@ -50,15 +49,23 @@ Cores, fontes, tamanhos de texto e cantos estão em [`app/globals.css`](app/glob
 
 ---
 
-## Configurar o formulário de contato
+## Formulário de contato
 
-O formulário valida os campos no navegador e de novo no servidor, e então envia um **POST com JSON** para a URL da variável `LEAD_WEBHOOK_URL`. Pode ser qualquer serviço que receba webhook:
+O formulário valida os campos no navegador e, ao enviar, **abre o WhatsApp da Agenda Flui** (`content/site.ts` → `contact.whatsapp`) com a mensagem já escrita:
 
-- **Make**: crie um cenário com o módulo *Webhooks → Custom webhook*, copie a URL e ligue em *Google Sheets → Add a row*.
-- **Zapier**: *Webhooks by Zapier → Catch Hook*, copie a URL e ligue em *Google Sheets → Create Spreadsheet Row* (ou mande para o WhatsApp/e-mail da equipe).
-- **Google Sheets direto**: publique um Google Apps Script como *App da Web* com um `doPost(e)` que faça `JSON.parse(e.postData.contents)` e `appendRow`.
+```
+Oi! Quero conhecer a Agenda Flui.
 
-Formato enviado:
+Pet shop: Banho & Cia
+Nome: Ana Souza
+WhatsApp: (41) 99999-9999
+Cidade: Curitiba
+Banhos por semana: 31 a 80
+```
+
+O contato só chega se a pessoa tocar em enviar no WhatsApp.
+
+**Webhook (opcional)**: se `NEXT_PUBLIC_LEAD_WEBHOOK_URL` estiver definida no build, o navegador também manda um POST para essa URL (Make, Zapier, Google Apps Script…). O corpo é JSON, mas vai com `Content-Type: text/plain` para não exigir configuração de CORS. A URL fica visível no código da página. Formato:
 
 ```json
 {
@@ -73,38 +80,27 @@ Formato enviado:
 }
 ```
 
-Comportamento:
-
-- **Sem `LEAD_WEBHOOK_URL`**: o formulário mostra "Não conseguimos enviar agora. Tente de novo ou chame a gente no WhatsApp." e o servidor registra no log que a variável está faltando. Nada se perde em silêncio.
-- **Webhook respondeu erro ou demorou mais de 10 s**: mesma mensagem de erro, e os campos continuam preenchidos.
-- **Anti-spam**: há um campo escondido (`empresa_site`). Se vier preenchido, a página finge sucesso e não envia nada.
-- **Analytics**: em cada envio com sucesso é registrado o evento `lead_submitted` (com a faixa de banhos por semana) no Vercel Web Analytics.
-
-Para testar no computador, coloque a URL do webhook em `.env.local` e reinicie o `npm run dev`.
+- **Anti-spam**: há um campo escondido (`empresa_site`). Se vier preenchido, a página finge sucesso e não abre o WhatsApp nem envia nada.
 
 ---
 
-## Publicar na Vercel
+## Publicar na Hostinger
 
-1. Suba o projeto para um repositório no GitHub (ou GitLab/Bitbucket).
-2. Na Vercel: **Add New… → Project**, importe o repositório. O framework (Next.js) é detectado sozinho; não mude os comandos de build.
-3. Antes de clicar em **Deploy**, abra **Environment Variables** e cadastre:
-   - `LEAD_WEBHOOK_URL` = a URL do webhook (Make/Zapier/Apps Script). Marque *Production* e *Preview*.
-   - `NEXT_PUBLIC_SITE_URL` = `https://agendaflui.com.br` (ou o domínio final, **sem barra no final**). Marque *Production*.
-4. Clique em **Deploy**.
-5. Em **Settings → Domains**, adicione `agendaflui.com.br` (e `www.agendaflui.com.br`, redirecionando para o principal) e siga as instruções de DNS.
-6. Em **Analytics**, clique em **Enable** para ligar o Web Analytics (o código já está pronto).
-7. Se mudar alguma variável depois, faça um novo deploy (**Deployments → ⋯ → Redeploy**). Variáveis `NEXT_PUBLIC_*` só valem a partir do próximo build.
+O site é exportado como arquivos estáticos (`output: "export"` em `next.config.ts`), então funciona na hospedagem comum, sem Node.js.
 
-Pela linha de comando, o equivalente é:
+1. Gere a build:
 
-```bash
-npm i -g vercel@latest
-vercel link
-vercel env add LEAD_WEBHOOK_URL production
-vercel env add NEXT_PUBLIC_SITE_URL production
-vercel --prod
-```
+   ```bash
+   NEXT_PUBLIC_SITE_URL=https://agendaflui.com.br npm run build
+   ```
+
+   (Para usar o webhook, acrescente `NEXT_PUBLIC_LEAD_WEBHOOK_URL=...` no mesmo comando.) Os arquivos saem na pasta `out/`.
+2. Compacte o conteúdo de `out/` (não a pasta em si): `cd out && zip -r ../site.zip .`
+3. No hPanel, abra **Gerenciador de Arquivos → `public_html`**, envie o zip e use **Extrair**. O `index.html` precisa ficar direto em `public_html`.
+4. Confira se o `.htaccess` foi junto (arquivo oculto). Ele vem de `public/.htaccess` e define a página 404, o tipo das imagens `apple-icon` e `opengraph-image` (geradas sem extensão), cache e compressão.
+5. No hPanel, ative o SSL e **Forçar HTTPS** do domínio.
+
+Para atualizar, gere a build de novo e substitua os arquivos em `public_html`.
 
 ---
 
@@ -115,7 +111,6 @@ Tudo que está entre colchetes aparece na página de propósito, para ninguém e
 | Placeholder | Onde aparece | Onde trocar |
 |---|---|---|
 | `[PREÇO]` | Card do "Plano completo" | `content/site.ts` → `pricing.plan.price` |
-| `[NÚMERO DO WHATSAPP]` | Link "Chamar no WhatsApp" (sucesso e erro do formulário), link "Contato" do rodapé, páginas legais | `content/site.ts` → `contact.whatsapp` (ex.: `"+55 41 99999-9999"`) e os textos das páginas legais |
 | `[Nome do seu pet shop]` | Card do hero e simulador de celular da seção do tutor | `content/site.ts` → `booking.shopName`. É um exemplo para o visitante; pode ficar assim ou virar um nome fictício |
 | `[REVISAR COM ADVOGADO]` | `/privacidade` e `/termos` | `app/privacidade/page.tsx`, `app/termos/page.tsx` |
 | `[DATA]` | Data de atualização das páginas legais | idem |

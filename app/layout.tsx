@@ -1,4 +1,3 @@
-import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import { site } from "@/content/site";
@@ -57,7 +56,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {site.nav.skipLink}
         </a>
         {children}
-        <Analytics />
       </body>
     </html>
   );

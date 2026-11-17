@@ -36,7 +36,7 @@ export default function PrivacidadePage() {
         <h2>Seus direitos (LGPD)</h2>
         <p>
           [REVISAR COM ADVOGADO] Você pode pedir acesso, correção ou exclusão dos seus dados a qualquer momento pelo
-          nosso WhatsApp [NÚMERO DO WHATSAPP]. Controlador dos dados: [RAZÃO SOCIAL E CNPJ].
+          nosso WhatsApp +55 41 99173-1154. Controlador dos dados: [RAZÃO SOCIAL E CNPJ].
         </p>
       </section>
     </LegalPage>

@@ -11,7 +11,7 @@ export const site = {
 
   contact: {
     /** Número com DDI + DDD, só dígitos ou formatado. Ex.: "+55 41 99999-9999". */
-    whatsapp: "[NÚMERO DO WHATSAPP]",
+    whatsapp: "+55 41 99173-1154",
     /** Mensagem que já vem escrita quando a pessoa abre o WhatsApp. */
     whatsappMessage: "Oi! Quero saber mais sobre a Agenda Flui.",
     instagram: {
@@ -307,9 +307,9 @@ export const site = {
     },
     submit: "Quero conhecer a Agenda Flui",
     sending: "Enviando…",
-    note: "A gente chama você no WhatsApp em até 1 dia útil.",
-    successTitle: "Recebemos!",
-    successText: "Vamos chamar você no WhatsApp em até 1 dia útil.",
+    note: "Ao enviar, o WhatsApp abre com seus dados. É só mandar a mensagem.",
+    successTitle: "Quase lá!",
+    successText: "Abrimos o WhatsApp com seus dados. Envie a mensagem e a gente responde em até 1 dia útil.",
     successLink: "Chamar no WhatsApp agora",
     error: "Não conseguimos enviar agora. Tente de novo ou chame a gente no WhatsApp.",
     errorLink: "Chamar no WhatsApp",
