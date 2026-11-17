@@ -28,7 +28,7 @@ export default function TermosPage() {
       </section>
       <section>
         <h2>Contato</h2>
-        <p>[REVISAR COM ADVOGADO] Dúvidas sobre estes termos: WhatsApp [NÚMERO DO WHATSAPP].</p>
+        <p>[REVISAR COM ADVOGADO] Dúvidas sobre estes termos: WhatsApp +55 41 99173-1154.</p>
       </section>
     </LegalPage>
   );

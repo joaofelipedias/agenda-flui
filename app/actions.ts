@@ -1,5 +1,3 @@
-"use server";
-
 import { site } from "@/content/site";
 import {
   HONEYPOT_FIELD,
@@ -11,8 +9,9 @@ import {
 } from "@/lib/lead";
 
 /**
- * Recebe o contato do formulário e envia para o webhook configurado em LEAD_WEBHOOK_URL
- * (Make, Zapier, Google Apps Script/Sheets, n8n…). Veja o README.
+ * Roda no navegador (o site é exportado como estático). O WhatsApp já foi aberto pelo
+ * formulário; se NEXT_PUBLIC_LEAD_WEBHOOK_URL estiver definida no build, o contato também
+ * vai para esse webhook (Make, Zapier, Google Apps Script/Sheets, n8n…). Veja o README.
  */
 export async function submitLead(_prev: LeadState, formData: FormData): Promise<LeadState> {
   // Anti-spam: se o campo escondido veio preenchido, finge sucesso e descarta.
@@ -33,10 +32,10 @@ export async function submitLead(_prev: LeadState, formData: FormData): Promise<
     return { status: "error", message: site.form.fixFields, fieldErrors: result.errors };
   }
 
-  const webhookUrl = process.env.LEAD_WEBHOOK_URL;
+  const webhookUrl = process.env.NEXT_PUBLIC_LEAD_WEBHOOK_URL;
+  // Sem webhook, o contato segue só pelo WhatsApp (aberto pelo formulário).
   if (!webhookUrl) {
-    console.error("[lead] LEAD_WEBHOOK_URL não configurada. Veja o README para configurar o formulário.");
-    return { status: "error", message: site.form.error };
+    return { status: "success" };
   }
 
   const weeklyBathsLabel =
@@ -56,10 +55,9 @@ export async function submitLead(_prev: LeadState, formData: FormData): Promise<
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(10_000),
-      cache: "no-store",
     });
     if (!response.ok) {
       console.error(`[lead] Webhook respondeu ${response.status}.`);

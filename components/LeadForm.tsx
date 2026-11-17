@@ -25,7 +25,7 @@ import {
   type LeadState,
   type LeadValues,
 } from "@/lib/lead";
-import { whatsappHref, whatsappIsPlaceholder } from "@/lib/whatsapp";
+import { leadWhatsappHref, whatsappHref, whatsappIsPlaceholder } from "@/lib/whatsapp";
 import { buttonClasses } from "./ui";
 
 const f = site.form;
@@ -128,6 +128,10 @@ export function LeadForm() {
     }
     setErrors({});
     submittedBaths.current = result.data.weeklyBaths;
+    // Abre o WhatsApp ainda dentro do clique, para o navegador não bloquear a nova aba.
+    if (!formRef.current?.querySelector<HTMLInputElement>(`[name="${HONEYPOT_FIELD}"]`)?.value) {
+      window.open(leadWhatsappHref(result.data), "_blank", "noopener");
+    }
     const formData = new FormData(event.currentTarget);
     startTransition(() => formAction(formData));
   };
